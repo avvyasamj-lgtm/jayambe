@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STORYVERSE — Stories for Every Mood</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+ --bg:#0b0b10;--card:#15151e;--text:#f6f3fa;
+ --muted:#9995a7;--purple:#b49aff;--line:#292733;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}
+header{
+ height:75px;padding:0 7%;display:flex;align-items:center;
+ justify-content:space-between;border-bottom:1px solid var(--line);
+ position:sticky;top:0;background:#0b0b10ed;z-index:10;
+ backdrop-filter:blur(15px)
+}
+.logo{font-size:23px;font-weight:800;letter-spacing:2px}
+.logo span{color:var(--purple)}
+nav{display:flex;gap:27px}
+nav a{color:#c4bfce;text-decoration:none;font-size:14px}
+nav a:hover{color:var(--purple)}
+.hero{
+ padding:85px 7% 70px;
+ background:radial-gradient(ellipse at 75% 35%,#49326b66,transparent 45%),
+ linear-gradient(120deg,#171322,#0b0b10 70%);
+}
+.hero small{color:var(--purple);letter-spacing:3px;font-weight:700}
+.hero h1{
+ font-family:'Playfair Display',serif;font-size:clamp(42px,7vw,75px);
+ line-height:1.12;max-width:700px;margin:20px 0;
+}
+.hero h1 span{color:var(--purple);font-style:italic}
+.hero p{color:var(--muted);max-width:500px;line-height:1.8}
+.search{
+ margin-top:30px;display:flex;max-width:520px;
+ background:#191722;border:1px solid #393344;
+ padding:7px;border-radius:12px;
+}
+.search input{background:none;border:0;outline:0;color:white;
+ padding:12px;width:100%;font-size:15px}
+.search button{background:var(--purple);border:0;padding:0 20px;
+ border-radius:8px;font-weight:700;cursor:pointer}
+.stats{display:flex;gap:40px;margin-top:35px}
+.stats strong{display:block;font-size:23px}
+.stats small{letter-spacing:0;color:var(--muted);font-size:12px}
+main{padding:45px 7%}
+.section-head{display:flex;justify-content:space-between;
+ align-items:center;margin-bottom:24px;gap:10px}
+.section-head h2{font-family:'Playfair Display',serif;font-size:29px}
+.section-head p{color:var(--muted);font-size:13px;margin-top:6px}
+.categories{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin-bottom:30px}
+.chip{border:1px solid var(--line);background:#14131c;color:#c7c2d0;
+ padding:10px 18px;border-radius:30px;white-space:nowrap;cursor:pointer}
+.chip.active,.chip:hover{background:var(--purple);color:#171020;border-color:var(--purple)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.story-card{
+ background:var(--card);border:1px solid var(--line);
+ border-radius:16px;overflow:hidden;transition:.3s;
+}
+.story-card:hover{transform:translateY(-5px);border-color:#8d72ca}
+.cover{height:175px;display:flex;align-items:center;justify-content:center;
+ font-size:65px;position:relative}
+.bookmark{position:absolute;right:13px;top:13px;border:0;
+ background:#111b;color:white;border-radius:50%;width:36px;height:36px;
+ font-size:18px;cursor:pointer}
+.story-info{padding:19px}
+.tag{font-size:11px;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.story-info h3{font-family:'Playfair Display',serif;font-size:21px;margin:10px 0}
+.story-info p{color:var(--muted);font-size:13px;line-height:1.7;min-height:44px}
+.meta{display:flex;justify-content:space-between;color:var(--muted);
+ font-size:12px;margin:18px 0}
+.read{width:100%;padding:12px;background:#252031;color:white;
+ border:1px solid #40374e;border-radius:9px;cursor:pointer;font-weight:700}
+.read:hover{background:var(--purple);color:#171020}
+.empty{text-align:center;padding:50px;color:var(--muted);grid-column:1/-1}
+footer{border-top:1px solid var(--line);padding:35px 7%;
+ text-align:center;color:var(--muted);font-size:13px}
+footer strong{color:var(--purple)}
+.modal{display:none;position:fixed;inset:0;background:#000d;z-index:30;
+ padding:20px;overflow-y:auto}
+.reader{max-width:760px;margin:35px auto;background:#171620;
+ border:1px solid #383344;border-radius:18px;padding:35px}
+.close{float:right;background:#302a3b;color:white;border:0;
+ padding:9px 14px;border-radius:8px;cursor:pointer}
+.reader h1{font-family:'Playfair Display',serif;font-size:38px;margin:35px 0 12px}
+.reader .details{color:var(--purple);font-size:13px;margin-bottom:25px}
+.reader p{color:#d3cfdb;line-height:2;font-size:16px;margin-bottom:20px}
+.progress{height:4px;background:#34303c;margin-top:20px;border-radius:5px}
+.progress div{height:100%;width:0;background:var(--purple);border-radius:5px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:550px){
+ header{padding:0 5%}nav{gap:12px}nav a{font-size:12px}
+ nav a:nth-child(2){display:none}
+ .hero,main{padding-left:5%;padding-right:5%}
+ .grid{grid-template-columns:1fr}
+ .stats{gap:22px}.reader{padding:22px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">STORY<span>VERSE.</span></div>
+ <nav>
+  <a href="#">Home</a>
+  <a href="#stories">Explore</a>
+  <a href="#categories">Categories</a>
+  <a href="#saved">Saved ♡</a>
+ </nav>
+</header>
+
+<section class="hero">
+ <small>YOUR WORLD OF STORIES</small>
+ <h1>Every story has a <span>feeling.</span></h1>
+ <p>Escape reality for a while. Discover mysterious worlds,
+ unexpected endings, beautiful friendships and unforgettable stories.</p>
+
+ <div class="search">
+  <input id="searchInput" placeholder="Search stories, categories...">
+  <button onclick="renderStories()">Search</button>
+ </div>
+
+ <div class="stats">
+  <div><strong>10,000+</strong><small>STORY LIBRARY*</small></div>
+  <div><strong>8+</strong><small>GENRES</small></div>
+  <div><strong>∞</strong><small>IMAGINATION</small></div>
+ </div>
+</section>
+
+<main>
+ <section id="categories">
+  <div class="section-head">
+   <div><h2>Explore Categories</h2>
+   <p>Find your next favourite story.</p></div>
+  </div>
+  <div class="categories" id="categoryList"></div>
+ </section>
+
+ <section id="stories">
+  <div class="section-head">
+   <div><h2 id="heading">Discover Stories</h2>
+   <p>Stories selected for your imagination.</p></div>
+  </div>
+  <div class="grid" id="storyGrid"></div>
+ </section>
+</main>
+
+<footer>
+ <strong>STORYVERSE.</strong><br><br>
+ A little escape into a world of imagination.<br>
+ © 2026 Storyverse. All rights reserved.
+</footer>
+
+<div class="modal" id="readerModal">
+ <div class="reader">
+  <button class="close" onclick="closeReader()">✕ Close</button>
+  <div id="readerContent"></div>
+  <div class="progress"><div id="progressBar"></div></div>
+ </div>
+</div>
+
+<script>
+const categories=[
+ "All","Comedy","Horror","Love","Crime","Mystery",
+ "Thriller","Life","Inspirational"
+];
+
+const stories=[
+{
+ id:1,title:"The Midnight Knock",category:"Horror",emoji:"🌑",
+ color:"linear-gradient(135deg,#25152f,#090b19)",
+ time:"5 min read",desc:"A knock at midnight. But nobody was outside.",
+ body:[
+ "It was 12:03 AM when Aarav heard three knocks on his bedroom door. He lived alone in a small apartment on the fourth floor.",
+ "He checked the hallway. Empty. He returned to bed, thinking it was probably the wind. Then his phone lit up with a message from an unknown number: 'Don't open the door.'",
+ "Three more knocks followed. This time, his phone rang. It was a call from his own number.",
+ "He answered. A whisper came through: 'I'm outside. Don't let me in.'",
+ "Aarav slowly turned toward the bedroom window. His reflection was standing behind him, even though he was alone."
+ ]
+},
+{
+ id:2,title:"The World's Worst Magician",category:"Comedy",emoji:"🎩",
+ color:"linear-gradient(135deg,#563d20,#1e1620)",
+ time:"4 min read",desc:"One magic trick, one chicken, and a very confused audience.",
+ body:[
+ "Rohan had always wanted to become a famous magician. Unfortunately, his tricks never worked.",
+ "At the school talent show, he announced his biggest trick: making a chicken disappear.",
+ "He covered the chicken with a cloth, shouted 'Abracadabra!' and pulled it away. The chicken was still there. But his shoes were missing.",
+ "The audience laughed. Rohan bowed proudly and said, 'Thank you! The shoes were part of the trick.'",
+ "Then the chicken ran off with his hat. It was officially the best performance of the evening."
+ ]
+},
+{
+ id:3,title:"The Last Train Home",category:"Mystery",emoji:"🚆",
+ color:"linear-gradient(135deg,#172c46,#11111d)",
+ time:"6 min read",desc:"A passenger boards a train that isn't on any timetable.",
+ body:[
+ "At 11:50 PM, Mira reached the empty railway platform. A train arrived silently, although no train was scheduled.",
+ "The conductor smiled and asked for her ticket. She had none, but he let her board.",
+ "Every passenger seemed familiar. An old woman was reading a book Mira had lost years ago. A little boy was holding the toy she had left at her childhood home.",
+ "At the final station, the conductor handed her a note. It read: 'Some journeys bring you back to the person you used to be.'",
+ "When Mira stepped onto the platform, she was standing outside her childhood home."
+ ]
+},
+{
+ id:4,title:"A Message from Yesterday",category:"Love",emoji:"💌",
+ color:"linear-gradient(135deg,#66394b,#211421)",
+ time:"5 min read",desc:"Sometimes the smallest messages stay with us forever.",
+ body:[
+ "Every morning, Kabir checked his old phone. It had one unread message from someone he had not spoken to in years.",
+ "It simply said, 'I hope you are doing well.' He wanted to reply, but he never found the right words.",
+ "One rainy afternoon, he finally typed: 'I hope you are happy too.'",
+ "The reply came a few minutes later: 'I am. And I hope you are.'",
+ "It wasn't a dramatic reunion. It was just two people wishing each other well. Sometimes that is enough."
+ ]
+},
+{
+ id:5,title:"The Empty House",category:"Crime",emoji:"🏚️",
+ color:"linear-gradient(135deg,#443c32,#15151b)",
+ time:"7 min read",desc:"A detective investigates a house with no owner and no history.",
+ body:[
+ "Detective Meera received an unusual case. A house had appeared in the town records, but nobody knew who owned it.",
+ "Inside, everything was perfectly arranged. A cup of tea sat on the table. A calendar showed tomorrow's date.",
+ "She found a photograph of the town's main street. In the background stood a person watching the house.",
+ "Meera checked the security footage. The house had been empty for twenty years.",
+ "Then she noticed the photograph was dated the following morning."
+ ]
+},
+{
+ id:6,title:"The Boy Who Collected Stars",category:"Inspirational",emoji:"✨",
+ color:"linear-gradient(135deg,#34466c,#151629)",
+ time:"4 min read",desc:"A young dreamer discovers that little things can change everything.",
+ body:[
+ "Every night, a boy named Dev sat on his rooftop and counted stars. His biggest dream was to become an astronomer.",
+ "People told him it was impossible. He had no telescope and no expensive books.",
+ "So he visited the library, borrowed old science books and learned one new thing every day.",
+ "Years later, Dev built a small observatory in his town. The children who visited called it their window to the universe.",
+ "He never collected the stars. He collected the knowledge that helped him understand them."
+ ]
+},
+{
+ id:7,title:"The Unexpected Guest",category:"Comedy",emoji:"🐈",
+ color:"linear-gradient(135deg,#51432d,#1d1820)",
+ time:"3 min read",desc:"A cat decides it owns an entire apartment building.",
+ body:[
+ "Nikhil found a cat sitting outside his apartment. He gave it some milk.",
+ "The next day, the cat returned with two friends. By Friday, there were six cats waiting at his door.",
+ "Soon the neighbours started asking him for the cat's permission before using the stairs.",
+ "One morning, Nikhil found a handwritten note under his door: 'Rent is due. Signed, Management.'",
+ "He looked up. The cat was sitting on his sofa like a landlord."
+ ]
+},
+{
+ id:8,title:"Footsteps in the Snow",category:"Thriller",emoji:"❄️",
+ color:"linear-gradient(135deg,#29485a,#101621)",
+ time:"6 min read",desc:"A mountain traveller discovers footprints following him.",
+ body:[
+ "A traveller named Arjun was walking through a snowy mountain trail when he noticed another set of footprints behind him.",
+ "He stopped. The footsteps stopped too.",
+ "He walked faster. They followed. He turned around, but the trail was completely empty.",
+ "At the mountain shelter, he checked the photograph he had taken earlier. In the background was a person wearing his exact jacket.",
+ "He looked down. The footprints outside the shelter were now leading toward the door."
+ ]
+}
+];
+
+let activeCategory="All";
+let saved=JSON.parse(localStorage.getItem("storyverseSaved")||"[]");
+
+function renderCategories(){
+ document.getElementById("categoryList").innerHTML=categories.map(c=>
+ `<button class="chip ${activeCategory===c?'active':''}"
+ onclick="setCategory('${c}')">${c}</button>`
+ ).join("");
+}
+
+function renderStories(){
+ const search=document.getElementById("searchInput").value.toLowerCase();
+ let filtered=stories.filter(s=>
+ (activeCategory==="All"||s.category===activeCategory||
+ (activeCategory==="Saved"&&saved.includes(s.id))) &&
+ (s.title.toLowerCase().includes(search)||
+ s.desc.toLowerCase().includes(search)||
+ s.category.toLowerCase().includes(search))
+ );
+ document.getElementById("heading").textContent=
+ activeCategory==="Saved"?"Your Saved Stories":"Discover Stories";
+
+ document.getElementById("storyGrid").innerHTML=filtered.length?
+ filtered.map(s=>`
+ <article class="story-card">
+  <div class="cover" style="background:${s.color}">
+   ${s.emoji}
+   <button class="bookmark" onclick="toggleSave(${s.id})">
+    ${saved.includes(s.id)?"♥":"♡"}
+   </button>
+  </div>
+  <div class="story-info">
+   <span class="tag">${s.category}</span>
+   <h3>${s.title}</h3>
+   <p>${s.desc}</p>
+   <div class="meta"><span>📖 ${s.time}</span><span>Original story</span></div>
+   <button class="read" onclick="openReader(${s.id})">Read Story →</button>
+  </div>
+ </article>`).join("")
+ :'<div class="empty">No stories found. Try another search!</div>';
+}
+
+function setCategory(c){
+ activeCategory=c;
+ renderCategories();
+ renderStories();
+}
+
+function toggleSave(id){
+ saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
+ localStorage.setItem("storyverseSaved",JSON.stringify(saved));
+ renderStories();
+}
+
+function openReader(id){
+ const s=stories.find(x=>x.id===id);
+ document.getElementById("readerContent").innerHTML=`
+ <span class="tag">${s.category}</span>
+ <h1>${s.emoji} ${s.title}</h1>
+ <div class="details">${s.time} · Storyverse Original</div>
+ ${s.body.map(p=>`<p>${p}</p>`).join("")}
+ <p style="color:#b49aff;font-style:italic">— The End —</p>
+ `;
+ document.getElementById("readerModal").style.display="block";
+ document.body.style.overflow="hidden";
+}
+
+function closeReader(){
+ document.getElementById("readerModal").style.display="none";
+ document.body.style.overflow="auto";
+}
+
+document.getElementById("readerModal").addEventListener("scroll",function(){
+ const max=this.scrollHeight-this.clientHeight;
+ document.getElementById("progressBar").style.width=
+ (max>0?(this.scrollTop/max)*100:0)+"%";
+});
+
+document.getElementById("searchInput").addEventListener("input",renderStories);
+
+renderCategories();
+renderStories();
+</script>
+</body>
+</html>
